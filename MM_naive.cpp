@@ -44,10 +44,11 @@ void multiplyNaive(const std::vector<double>& A, int rowsA, int colsA,
     for (int i = 0; i < N; i++) {           
         for (int j = 0; j < P; j++) {    
             // DOT PRODUCT   
-            C[i * P + j] = 0.0;
+            double sum = 0.0;
             for (int k = 0; k < M; k++) {   
-                C[i * P + j] += A[i * M + k] * B[k * P + j];
+                sum += A[i * M + k] * B[k * P + j];
             }
+            C[i * P + j] = sum;
         }
     }
 }
@@ -92,14 +93,11 @@ int main() {
     std::cout << "Execution time: " << elapsed.count() << " second." << std::endl;
     std::cout << "Checksum: " << checksum << std::endl;
     
-    std::ofstream outfile("result_naive.txt");
-    outfile << r1 << " " << c2 << "\n"; 
-    for (int i = 0; i < r1; i++) {
-        for (int j = 0; j < c2; j++) {
-            outfile << C[i * c2 + j] << " ";
-        }
-        outfile << "\n";
-    }
+    std::ofstream outfile("result_normal.txt", std::ios::app);
+    outfile << "************************************" << std::endl;
+    outfile << r1 << " x " << c1 << " and " << r2 << " x " << c2 << std::endl;
+    outfile << "Checksum of naive: " << checksum << std::endl;
+    outfile << "Execution time of naive: " << elapsed.count() << " second." << std::endl;
     outfile.close();
 
     return 0;

@@ -21,11 +21,11 @@ MM_naive: MM_naive.cpp
 MM_strassen: MM_strassen.cpp
 	$(CXX) -o MM_strassen MM_strassen.cpp
 
-naive_OpenMP: OpenMP/naive.cpp
-	$(CXX) -o OpenMP/naive -fopenmp OpenMP/naive.cpp 
+naive_OpenMP: naive_OpenMP.cpp
+	$(CXX) -o naive_OpenMP -fopenmp naive_OpenMP.cpp 
 
-strassen_OpenMP: OpenMP/strassen.cpp
-	$(CXX) -o OpenMP/strassen -fopenmp OpenMP/strassen.cpp 
+strassen_OpenMP: strassen_OpenMP.cpp
+	$(CXX) -o strassen_OpenMP -fopenmp strassen_OpenMP.cpp 
 
 run: all
 	@echo "--- Running Naive ---"
@@ -35,12 +35,12 @@ run: all
 
 runopenmp: openmp
 	@echo "--- Running Naive ---"
-	OMP_NUM_THREADS=$(THREADS) ./OpenMP/naive
+	OMP_NUM_THREADS=$(THREADS) ./naive_OpenMP
 	@echo "\n--- Running Strassen ---"
-	OMP_NUM_THREADS=$(THREADS) ./OpenMP/strassen
+	OMP_NUM_THREADS=$(THREADS) ./strassen_OpenMP
 
 gen:
 	python3 gen_matrix.py $(R1) $(C1) $(R2) $(C2)
 
 clean:
-	rm -f $(TARGETS) result_naive.txt result_strassen.txt
+	rm -f $(TARGETS) $(OPENMP) result_*.txt

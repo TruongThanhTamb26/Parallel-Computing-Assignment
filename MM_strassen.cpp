@@ -247,14 +247,9 @@ int main() {
     std::cout << "Execution time: " << elapsed.count() << " second." << std::endl;
     std::cout << "Checksum: " << checksum << std::endl;
 
-    std::ofstream outfile("result_strassen.txt");
-    outfile << r1 << " " << c2 << "\n"; 
-    for (int i = 0; i < r1; i++) {
-        for (int j = 0; j < c2; j++) {
-            outfile << C[i * c2 + j] << " ";
-        }
-        outfile << "\n";
-    }
+    std::ofstream outfile("result_normal.txt", std::ios::app);
+    outfile << "Checksum of strassen: " << checksum << std::endl;
+    outfile << "Execution time of strassen: " << elapsed.count() << " second." << std::endl;
     outfile.close();
 
     return 0;
