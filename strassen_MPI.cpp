@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+#include "report_utils.hpp"
+
 using namespace std;
 
 struct TaskHeader {
@@ -378,12 +380,7 @@ int main(int argc, char** argv) {
     std::cout << "Execution time: " << elapsed.count() << " second." << std::endl;
     std::cout << "Checksum: " << checksum << std::endl;
 
-    std::ofstream outfile("result_mpi.txt", std::ios::app);
-    outfile << r1 << " x " << c1 << " and " << r2 << " x " << c2 << std::endl;
-    outfile << "MPI Processes: " << worldSize << std::endl;
-    outfile << "Checksum of strassen: " << checksum << std::endl;
-    outfile << "Execution time of strassen: " << elapsed.count() << " second." << std::endl;
-    outfile.close();
+    appendReport("Strassen", "MPI", r1, c1, r2, c2, elapsed.count(), checksum, worldSize, -1);
 
     sendStopSignal(worldSize);
     MPI_Finalize();

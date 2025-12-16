@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+#include "report_utils.hpp"
+
 using namespace std;
 
 struct TaskHeader {
@@ -359,6 +361,11 @@ int main(int argc, char** argv) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &worldSize);
 
+    int threadCount = 1;
+    #ifdef _OPENMP
+        threadCount = omp_get_max_threads();
+    #endif
+
     if (rank != 0) {
         workerLoop();
         MPI_Finalize();
@@ -367,7 +374,7 @@ int main(int argc, char** argv) {
 
     std::cout << "MPI Strassen. Processes: " << worldSize;
     #ifdef _OPENMP
-        std::cout << " | OpenMP threads: " << omp_get_max_threads();
+        std::cout << " | OpenMP threads: " << threadCount;
     #endif
     std::cout << std::endl;
 
@@ -399,12 +406,7 @@ int main(int argc, char** argv) {
     std::cout << "Execution time: " << elapsed.count() << " second." << std::endl;
     std::cout << "Checksum: " << checksum << std::endl;
 
-    std::ofstream outfile("result_mpi.txt", std::ios::app);
-    outfile << r1 << " x " << c1 << " and " << r2 << " x " << c2 << std::endl;
-    outfile << "MPI Processes: " << worldSize << std::endl;
-    outfile << "Checksum of strassen: " << checksum << std::endl;
-    outfile << "Execution time of strassen: " << elapsed.count() << " second." << std::endl;
-    outfile.close();
+    appendReport("Strassen", "Hybrid MPI+OpenMP", r1, c1, r2, c2, elapsed.count(), checksum, worldSize, threadCount);
 
     sendStopSignal(worldSize);
     MPI_Finalize();

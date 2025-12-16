@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <omp.h> 
 
+#include "report_utils.hpp"
+
 using namespace std;
 
 const int LEAF_SIZE = 64; 
@@ -238,9 +240,6 @@ int main() {
     std::cout << "Execution time: " << elapsed.count() << " second." << std::endl;
     std::cout << "Checksum: " << checksum << std::endl;
 
-    std::ofstream outfile("result_openmp.txt", std::ios::app);
-    outfile << "Checksum of strassen: " << checksum << std::endl;
-    outfile << "Execution time of strassen: " << elapsed.count() << " second." << std::endl;
-    outfile.close();
+    appendReport("Strassen", "OpenMP", r1, c1, r2, c2, elapsed.count(), checksum, 1, omp_get_max_threads());
     return 0;
 }

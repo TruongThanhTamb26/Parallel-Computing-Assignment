@@ -7,6 +7,8 @@
 #include <omp.h>
 #include <iomanip>
 
+#include "report_utils.hpp"
+
 // --------------- read file (Chỉ dùng cho Master) -------------------
 std::vector<double> readMatrix(const std::string& filename, int& rows, int& cols) {
     std::ifstream infile(filename);
@@ -64,6 +66,11 @@ int main(int argc, char** argv) {
 
     int r1, c1, r2, c2;
     std::vector<double> A, B, C;
+
+    int threadCount = 1;
+    #ifdef _OPENMP
+        threadCount = omp_get_max_threads();
+    #endif
 
     if (rank == 0) {
         #ifdef _OPENMP
@@ -161,22 +168,13 @@ int main(int argc, char** argv) {
         std::cout << "Completion." << std::endl;
         std::cout << "MPI Processes: " << size;
         #ifdef _OPENMP
-            std::cout << " | OpenMP threads: " << omp_get_max_threads();
+            std::cout << " | OpenMP threads: " << threadCount;
         #endif
         std::cout << std::endl;
         std::cout << "Execution time: " << elapsed.count() << " second." << std::endl;
         std::cout << "Checksum: " << std::fixed << std::setprecision(5) << checksum << std::endl;
 
-        std::ofstream outfile("result_mpi.txt", std::ios::app);
-        outfile << "************************************" << std::endl;
-        outfile << r1 << " x " << c1 << " and " << r2 << " x " << c2 << std::endl;
-        outfile << "MPI Processes: " << size << std::endl;
-        #ifdef _OPENMP
-            outfile << "OpenMP threads: " << omp_get_max_threads() << std::endl;
-        #endif
-        outfile << "Checksum of naive: " << checksum << std::endl;
-        outfile << "Execution time: " << elapsed.count() << " second." << std::endl;
-        outfile.close();
+        appendReport("Naive", "Hybrid MPI+OpenMP", r1, c1, r2, c2, elapsed.count(), checksum, size, threadCount);
 
     } else {
         // Worker gửi kết quả về Master

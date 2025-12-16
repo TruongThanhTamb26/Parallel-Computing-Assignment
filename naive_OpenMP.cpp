@@ -5,6 +5,8 @@
 #include <chrono>   
 #include <omp.h> 
 
+#include "report_utils.hpp"
+
 // --------------- read file -------------------
 std::vector<double> readMatrix(const std::string& filename, int& rows, int& cols) {
     std::ifstream infile(filename);
@@ -97,13 +99,7 @@ int main() {
     std::cout << "Execution time: " << elapsed.count() << " second." << std::endl;
     std::cout << "Checksum: " << checksum << std::endl;
     
-    std::ofstream outfile("result_openmp.txt", std::ios::app);
-    outfile << "************************************" << std::endl;
-    outfile << r1 << " x " << c1 << " and " << r2 << " x " << c2 << std::endl;
-    outfile << "threads: " << omp_get_max_threads() << std::endl;
-    outfile << "Checksum of naive: " << checksum << std::endl;
-    outfile << "Execution time of naive: " << elapsed.count() << " second." << std::endl;
-    outfile.close();
+    appendReport("Naive", "OpenMP", r1, c1, r2, c2, elapsed.count(), checksum, 1, omp_get_max_threads());
 
     return 0;
 }

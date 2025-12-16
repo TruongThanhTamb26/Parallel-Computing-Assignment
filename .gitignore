@@ -1,0 +1,15 @@
+# Ignore generated text reports/logs
+*.txt
+
+# Ignore executable binaries
+*.exe
+
+# Ignore build outputs produced by make (Linux binaries)
+MM_naive
+MM_strassen
+naive_OpenMP
+strassen_OpenMP
+naive_MPI
+strassen_MPI
+naive_OpenMPI
+strassen_OpenMPI

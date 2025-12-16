@@ -1,39 +1,39 @@
-# Parallel Matrix Multiplication Assignment
+# Bài tập lớn: Nhân Ma trận Song song
 
-Reference implementations of dense matrix multiplication used throughout the Parallel Computing assignment. The repository contains:
+Đây là bộ mã nguồn tham khảo cho bài tập lớn môn Lập trình Song song, bao gồm các cài đặt nhân ma trận đặc (dense matrix multiplication). Repository này chứa:
 
-- Straightforward $O(n^3)$ multiplication for correctness and baseline timing.
-- Strassen’s divide-and-conquer algorithm (serial, OpenMP, and MPI flavors) with automatic padding.
-- OpenMP and MPI upgrades for the naive algorithm so you can study scalability on shared-memory and distributed clusters.
-- Utility scripts to generate input matrices and log results for later analysis.
+-   Nhân ma trận ngây thơ (Naive) $O(n^3)$ để kiểm tra tính đúng đắn và đo thời gian cơ sở.
+-   Thuật toán Strassen chia để trị (phiên bản tuần tự, OpenMP, và MPI) với cơ chế tự động thêm lề (padding).
+-   Các phiên bản nâng cấp sử dụng OpenMP và MPI để đánh giá khả năng mở rộng trên hệ thống chia sẻ bộ nhớ (shared-memory) và phân tán (distributed).
+-   Script tiện ích để sinh ma trận đầu vào và ghi log kết quả.
 
 ---
 
-## � Repository layout
+## 📂 Cấu trúc Repository
 
-| Path | Description |
+| Đường dẫn | Mô tả |
 | --- | --- |
-| `MM_naive.cpp` | Serial triple-loop implementation; writes `result_naive.txt`. |
-| `MM_strassen.cpp` | Serial Strassen with power-of-two padding and configurable `LEAF_SIZE`; writes `result_strassen.txt`. |
-| `naive_OpenMP.cpp`, `strassen_OpenMP.cpp` | Shared-memory versions using OpenMP; report thread count, execution time, and checksum to `result_openmp.txt`. |
-| `naive_MPI.cpp`, `strassen_MPI.cpp` | Distributed-memory versions using MPI; `strassen_MPI` performs fully MPI-driven Strassen recursion and appends logs to `result_mpi.txt`. |
-| `strassen_OpenMPI.cpp` | Spare sandbox for experimenting with hybrid ideas (not wired into the Makefile). |
-| `gen_matrix.py` | Matrix generator (`python3 gen_matrix.py r1 c1 r2 c2`). |
-| `matrix1`, `matrix2` | Sample inputs in the project’s plain-text format. |
-| `Makefile` | Builds all variants and exposes convenience targets (`run`, `runopenmp`, `runmpi`, `gen`, `clean`). |
-| `Assignment1_v1-1_031025.pdf` | Official assignment specification for reference. |
-| `result_*.txt` | Timing/checksum logs produced by each variant (safe to delete). |
+| `MM_naive.cpp` | Cài đặt tuần tự 3 vòng lặp; ghi log chung vào `result_report.txt`. |
+| `MM_strassen.cpp` | Strassen tuần tự với padding lũy thừa 2 và `LEAF_SIZE` tùy chỉnh; ghi log chung vào `result_report.txt`. |
+| `naive_OpenMP.cpp`, `strassen_OpenMP.cpp` | Phiên bản chia sẻ bộ nhớ dùng OpenMP; báo cáo số luồng, thời gian và checksum vào `result_report.txt`. |
+| `naive_MPI.cpp`, `strassen_MPI.cpp` | Phiên bản bộ nhớ phân tán dùng MPI; chỉ rank 0 ghi vào `result_report.txt`. |
+| `naive_OpenMPI.cpp`, `strassen_OpenMPI.cpp` | Phiên bản Hybrid (MPI + OpenMP), dùng cùng file báo cáo `result_report.txt`. |
+| `report_utils.hpp` | Hàm tiện ích `appendReport(...)` dùng chung để chuẩn hóa ghi log. |
+| `gen_matrix.py` | Script sinh ma trận (`python3 gen_matrix.py r1 c1 r2 c2`). |
+| `matrix1`, `matrix2` | File đầu vào mẫu định dạng text. |
+| `Makefile` | File cấu hình biên dịch (`make`, `make openmp`, `make mpi`, `make gen`, `make clean`). |
+| `result_report.txt` | File duy nhất chứa toàn bộ kết quả (% checksum, thời gian, số tiến trình/luồng). |
 
 ---
 
-## ⚙️ Prerequisites
+## ⚙️ Yêu cầu hệ thống (Prerequisites)
 
-- Linux or another POSIX-like environment with `bash` and `make`.
-- A C++17-capable compiler (`g++`, `clang++`, or similar) with OpenMP support.
-- MPI toolchain (`mpicxx`, `mpirun`).
-- Python 3 for matrix generation (optional but recommended).
+-   Linux hoặc môi trường POSIX tương tự (có `bash` và `make`).
+-   Trình biên dịch C++17 (`g++`, `clang++`,...) có hỗ trợ OpenMP.
+-   Môi trường MPI (`mpicxx`, `mpirun`).
+-   Python 3 để sinh ma trận (khuyên dùng).
 
-Installations on Ubuntu (example):
+Cài đặt trên Ubuntu:
 
 ```bash
 sudo apt install build-essential libomp-dev openmpi-bin openmpi-common python3
@@ -41,39 +41,39 @@ sudo apt install build-essential libomp-dev openmpi-bin openmpi-common python3
 
 ---
 
-## 🧱 Building
+## 🧱 Biên dịch (Building)
 
-| Target | Command | Notes |
+| Mục tiêu | Lệnh | Ghi chú |
 | --- | --- | --- |
-| Serial baselines | `make` | Produces `MM_naive` and `MM_strassen`. |
-| OpenMP variants | `make openmp` | Builds `naive_OpenMP` and `strassen_OpenMP`. |
-| MPI variants | `make mpi` | Builds `naive_MPI` and `strassen_MPI`. |
-| Everything | `make all openmp mpi` | Useful for cluster runs. |
+| Tuần tự (Serial) | `make` | Tạo `MM_naive` và `MM_strassen`. |
+| OpenMP | `make openmp` | Tạo `naive_OpenMP` và `strassen_OpenMP`. |
+| MPI | `make mpi` | Tạo `naive_MPI` và `strassen_MPI`. |
+| Tất cả | `make all openmp mpi` | Biên dịch toàn bộ. |
 
-Environment variables you can override per invocation:
+Các biến môi trường có thể thay đổi:
 
-- `THREADS` – Number of OpenMP threads used by `make runopenmp` (default `4`).
-- `PROCESS` – Number of MPI ranks launched by `make runmpi` (default `4`).
+-   `THREADS`: Số luồng OpenMP dùng cho `make runopenmp` (mặc định `4`).
+-   `PROCESS`: Số tiến trình MPI dùng cho `make runmpi` (mặc định `4`).
 
 ---
 
-## ▶️ Running the executables
+## ▶️ Hướng dẫn chạy (Running)
 
-### Serial reference
+### Phiên bản Tuần tự
 
 ```bash
-make run          # runs MM_naive then MM_strassen using matrix1/matrix2
+make run          # chạy MM_naive sau đó là MM_strassen với matrix1/matrix2
 ```
 
-Each executable prints matrix dimensions, execution time, and checksum, then writes the resulting matrix to `result_naive.txt` or `result_strassen.txt`.
+Mỗi chương trình sẽ in kích thước ma trận, thời gian thực thi, checksum, và thêm một block vào `result_report.txt` để dễ so sánh.
 
-### OpenMP
+### Phiên bản OpenMP
 
 ```bash
 THREADS=8 make runopenmp
 ```
 
-`OMP_NUM_THREADS` is injected automatically. Individual runs can also be launched manually:
+Biến `OMP_NUM_THREADS` sẽ được tự động thiết lập. Bạn cũng có thể chạy thủ công:
 
 ```bash
 export OMP_NUM_THREADS=8
@@ -81,101 +81,104 @@ export OMP_NUM_THREADS=8
 ./strassen_OpenMP
 ```
 
-### MPI
+### Phiên bản MPI / Hybrid
 
 ```bash
 PROCESS=6 make runmpi
 ```
 
-Behind the scenes this calls:
+Lệnh này tương đương với:
 
 ```bash
 mpirun -np 6 ./naive_MPI
 mpirun -np 6 ./strassen_MPI
 ```
 
-The MPI versions broadcast matrices from rank 0, divide work among ranks, gather the result, and append timing/checksum blocks to `result_mpi.txt`. The Strassen MPI version currently distributes the top recursion level, falling back to local Strassen for smaller blocks.
+Phiên bản MPI sẽ broadcast ma trận từ rank 0, chia việc cho các rank, thu thập kết quả và ghi log chung vào `result_report.txt`. Phiên bản `strassen_MPI` hiện tại phân tán mức đệ quy đầu tiên, trong khi bản `*_OpenMPI` tận dụng OpenMP cho tính toán cục bộ.
+
+Sau khi chạy bất kỳ biến thể nào, mở `result_report.txt` để xem block tương ứng:
+
+```
+========================================
+Algorithm : Naive
+Mode      : MPI
+Matrix A  : 1024 x 1024
+Matrix B  : 1024 x 1024
+Processes : 4
+Threads   : 8          # chỉ xuất hiện khi có OpenMP
+Time (s)  : 0.532871
+Checksum  : 123456.000000
+
+```
+
+Các block được append theo thời gian, rất thuận tiện để so sánh tốc độ và checksum của các cấu hình khác nhau.
 
 ---
 
-## 🗃️ Input format & generation
+## 🗃️ Định dạng đầu vào & Sinh dữ liệu
 
-All programs expect matrices in plain text:
+Tất cả chương trình đều đọc ma trận dạng text:
 
 ```
-<rows> <cols>
+<số hàng> <số cột>
 v11 v12 ... v1c
 ...
 vr1 vr2 ... vrc
 ```
 
-Sample creation commands:
+Lệnh tạo dữ liệu mẫu:
 
 ```bash
-# create random 2048x2048 matrices (integers 0..9)
+# Tạo ma trận ngẫu nhiên 2048x2048 (giá trị 0..9)
 python3 gen_matrix.py 2048 2048 2048 2048
 
-# Or via make (defaults to 500x500, override as needed)
+# Hoặc dùng make (mặc định 500x500)
 R1=1024 C1=1024 R2=1024 C2=1024 make gen
 ```
 
-Ensure the inner dimensions agree (`matrix1` columns == `matrix2` rows). Otherwise the programs exit with a descriptive error message.
+Đảm bảo kích thước hợp lệ (cột ma trận 1 == hàng ma trận 2).
 
 ---
 
-## 🧮 Algorithms at a glance
+## 🧮 Tổng quan Thuật toán
 
-| Variant | Highlights |
+| Phiên bản | Đặc điểm |
 | --- | --- |
-| Naive (serial/OpenMP/MPI) | Triple loop, no padding, deterministic output, easiest for correctness checks. |
-| Strassen (serial) | Pads to the next power of two, recurses until `LEAF_SIZE`, then falls back to naive multiplication. |
-| Strassen OpenMP | Creates OpenMP tasks for each of the seven Strassen sub-products and collapses them after `#pragma omp taskwait`. |
-| Strassen MPI | Rank 0 prepares the seven sub-problems, distributes them across ranks, and merges the returned quadrants. A configurable `DISTRIBUTED_THRESHOLD` keeps tiny problems local. |
+| Naive (Serial/OpenMP/MPI) | 3 vòng lặp lồng nhau, không padding, dễ kiểm tra tính đúng đắn. |
+| Strassen (Serial) | Padding lên lũy thừa 2, đệ quy đến `LEAF_SIZE` rồi chuyển sang nhân thường. |
+| Strassen OpenMP | Tạo các task OpenMP cho 7 phép nhân con của Strassen và đồng bộ bằng `#pragma omp taskwait`. |
+| Strassen MPI (Hybrid) | Rank 0 chia 7 bài toán con, gửi cho các rank khác. Các rank sử dụng OpenMP để tính toán song song cục bộ. |
 
-Checksums (sum of all matrix elements) are printed to help confirm that different variants yield identical outputs.
-
----
-
-## 📊 Benchmarking & correctness checklist
-
-1. **Warm-up**: Run the serial naive version to record a baseline time and checksum.
-2. **Correctness**: Compare the checksum (or the entire `result_*.txt`) produced by each optimized variant against the serial baseline. Any mismatch indicates either data race issues or inconsistent padding.
-3. **Scaling study**: Vary `THREADS` for OpenMP and `PROCESS` for MPI. Record (matrix size, processes/threads, runtime) triples in a spreadsheet or CSV.
-4. **Matrix size sweep**: Use the generator to evaluate 100×100, 1 000×1 000, up to 10 000×10 000 matrices as requested in the assignment. Expect Strassen to pull ahead only after a certain crossover size.
-5. **Library comparisons**: Optionally compare against BLAS (e.g., OpenBLAS or cuBLAS) to satisfy the “compare with existing library” requirement.
-
-Suggested table template:
-
-| Size | Variant | Threads/Processes | Time (s) | Speedup vs. serial |
-| --- | --- | --- | --- | --- |
-| 1024² | Naive OpenMP | 8 threads | 3.21 | 2.8× |
+Checksum (tổng tất cả phần tử) được in ra để đối chiếu kết quả giữa các phiên bản.
 
 ---
 
-## 🧹 Maintenance commands
+## 📊 Hướng dẫn Benchmark
+
+1.  **Khởi động**: Chạy phiên bản tuần tự để lấy thời gian và checksum cơ sở.
+2.  **Kiểm tra đúng đắn**: So sánh checksum của các bản song song với bản tuần tự.
+3.  **Đánh giá mở rộng (Scaling)**: Thay đổi `THREADS` và `PROCESS`. Ghi lại bộ ba (kích thước, số tiến trình/luồng, thời gian).
+4.  **Quét kích thước**: Thử nghiệm từ 100x100 đến 10.000x10.000. Strassen thường chỉ nhanh hơn Naive ở kích thước lớn.
+
+---
+
+## 🧹 Dọn dẹp
 
 ```bash
-make clean          # remove all executables and result_*.txt
-rm result_*.txt     # selectively clear logs
+make clean              # xóa file thực thi
+rm result_report.txt    # xóa toàn bộ báo cáo
 ```
 
 ---
 
-## 🛠️ Troubleshooting
+## 🛠️ Xử lý sự cố (Troubleshooting)
 
-- **File not found**: Verify `matrix1`/`matrix2` live in the project root and that your `mpirun` working directory is correct (use `mpirun -wd $(pwd)` if needed).
-- **Dimension mismatch**: Check the first line of both inputs; the number of columns in the first matrix must equal the number of rows in the second.
-- **OpenMP not parallelizing**: Make sure you compiled with `-fopenmp` (use the Makefile targets) and that `OMP_NUM_THREADS` is set to >1.
-- **MPI ranks hang on exit**: Always allow rank 0 to reach the cleanup code. Killing a run abruptly may leave stray ranks; use `mpirun --timeout` or `pkill -f mpirun` as a last resort.
-- **Strassen slow on tiny sizes**: Decrease `LEAF_SIZE`/`DISTRIBUTED_THRESHOLD`, or simply run the naive algorithm for small matrices.
+-   **File not found**: Kiểm tra `matrix1`/`matrix2` có nằm cùng thư mục không.
+-   **Dimension mismatch**: Kiểm tra dòng đầu tiên của file input.
+-   **OpenMP không chạy song song**: Đảm bảo đã biên dịch với cờ `-fopenmp` và `OMP_NUM_THREADS` > 1.
+-   **MPI bị treo**: Đảm bảo rank 0 luôn chạy đến cuối để gọi `MPI_Finalize`.
+-   **Strassen chậm với ma trận nhỏ**: Giảm `LEAF_SIZE` hoặc dùng thuật toán Naive.
 
 ---
 
-## 🚀 Possible extensions
-
-- Hybrid MPI + OpenMP (nested parallelism) to meet the “marriage” requirement from the assignment PDF.
-- GPU kernels (CUDA, OpenCL, HIP) for extra credit.
-- Automated CSV/JSON report generation and plotting scripts.
-- Error-bound checks (e.g., relative Frobenius norm) when experimenting with floating-point reductions.
-
-Happy benchmarking!
+Chúc bạn làm bài tốt!

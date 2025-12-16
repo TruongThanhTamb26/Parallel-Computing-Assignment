@@ -4,9 +4,10 @@ MPICXX = mpicxx
 MPIRUN = mpirun
 
 # execution file
-TARGETS = MM_naive MM_strassen
+NORMAL = MM_naive MM_strassen
 OPENMP = naive_OpenMP strassen_OpenMP
 MPI = naive_MPI strassen_MPI
+OPENMPI = naive_OpenMPI strassen_OpenMPI
 
 # Default matrix size
 R1 ?= 500
@@ -16,9 +17,11 @@ C2 ?= 500
 THREADS ?= 4
 PROCESS ?= 4
 
-all: $(TARGETS)
+normal: $(NORMAL)
 openmp: $(OPENMP)
 mpi: $(MPI)
+openmpi: $(OPENMPI)
+all: $(NORMAL) $(OPENMP) $(MPI) $(OPENMPI)
 
 MM_naive: MM_naive.cpp
 	$(CXX) -o MM_naive MM_naive.cpp
@@ -38,7 +41,13 @@ naive_MPI: naive_MPI.cpp
 strassen_MPI: strassen_MPI.cpp
 	$(MPICXX) -o strassen_MPI strassen_MPI.cpp
 
-run: all
+naive_OpenMPI: naive_OpenMPI.cpp
+	$(MPICXX) -fopenmp -o naive_OpenMPI naive_OpenMPI.cpp
+
+strassen_OpenMPI: strassen_OpenMPI.cpp
+	$(MPICXX) -fopenmp -o strassen_OpenMPI strassen_OpenMPI.cpp
+
+runnormal: normal
 	@echo "--- Running Naive ---"
 	./MM_naive
 	@echo "\n--- Running Strassen ---"
@@ -56,8 +65,16 @@ runmpi: mpi
 	@echo "\n--- Running Strassen ---"
 	$(MPIRUN) -np $(PROCESS) ./strassen_MPI
 
+runopenmpi: openmpi
+	@echo "--- Running Naive ---"
+	OMP_NUM_THREADS=$(THREADS) $(MPIRUN) -np $(PROCESS) ./naive_OpenMPI 
+	@echo "\n--- Running Strassen ---"
+	OMP_NUM_THREADS=$(THREADS) $(MPIRUN) -np $(PROCESS) ./strassen_OpenMPI
+
+runall: runnormal runopenmp runmpi runopenmpi
+
 gen:
 	python3 gen_matrix.py $(R1) $(C1) $(R2) $(C2)
 
 clean:
-	rm -f $(TARGETS) $(OPENMP) $(MPI) result_*.txt
+	rm -f $(NORMAL) $(OPENMP) $(MPI) $(OPENMPI) result_*.txt
