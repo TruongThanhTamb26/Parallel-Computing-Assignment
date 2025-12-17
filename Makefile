@@ -16,6 +16,9 @@ R2 ?= 500
 C2 ?= 500
 THREADS ?= 4
 PROCESS ?= 4
+MATRIX_A ?= matrix1
+MATRIX_B ?= matrix2
+
 
 normal: $(NORMAL)
 openmp: $(OPENMP)
@@ -49,42 +52,42 @@ strassen_OpenMPI: strassen_OpenMPI.cpp
 
 runnormal: normal
 	@echo "--- Running Naive ---"
-	./MM_naive
+	./MM_naive $(MATRIX_A) $(MATRIX_B)
 	@echo "\n--- Running Strassen ---"
-	./MM_strassen
+	./MM_strassen $(MATRIX_A) $(MATRIX_B)
 
 runopenmp: openmp
 	@echo "--- Running Naive ---"
-	OMP_NUM_THREADS=$(THREADS) ./naive_OpenMP
+	OMP_NUM_THREADS=$(THREADS) ./naive_OpenMP $(MATRIX_A) $(MATRIX_B)
 	@echo "\n--- Running Strassen ---"
-	OMP_NUM_THREADS=$(THREADS) ./strassen_OpenMP
+	OMP_NUM_THREADS=$(THREADS) ./strassen_OpenMP $(MATRIX_A) $(MATRIX_B)
 
 runmpi: mpi
 	@echo "--- Running Naive ---"
-	$(MPIRUN) -np $(PROCESS) ./naive_MPI
+	$(MPIRUN) -np $(PROCESS) ./naive_MPI $(MATRIX_A) $(MATRIX_B)
 	@echo "\n--- Running Strassen ---"
-	$(MPIRUN) -np $(PROCESS) ./strassen_MPI
+	$(MPIRUN) -np $(PROCESS) ./strassen_MPI $(MATRIX_A) $(MATRIX_B)
 
 runopenmpi: openmpi
 	@echo "--- Running Naive ---"
-	OMP_NUM_THREADS=$(THREADS) $(MPIRUN) -np $(PROCESS) ./naive_OpenMPI 
+	OMP_NUM_THREADS=$(THREADS) $(MPIRUN) -np $(PROCESS) ./naive_OpenMPI $(MATRIX_A) $(MATRIX_B)
 	@echo "\n--- Running Strassen ---"
-	OMP_NUM_THREADS=$(THREADS) $(MPIRUN) -np $(PROCESS) ./strassen_OpenMPI
+	OMP_NUM_THREADS=$(THREADS) $(MPIRUN) -np $(PROCESS) ./strassen_OpenMPI $(MATRIX_A) $(MATRIX_B)
 
 runall: runnormal runopenmp runmpi runopenmpi
 
 #run with cluster
 runmpicluster: mpi
 	@echo "--- Running Naive ---"
-	$(MPIRUN) -f hosts.txt -n $(PROCESS) ./naive_MPI
+	$(MPIRUN) -f hosts.txt -n $(PROCESS) ./naive_MPI $(MATRIX_A) $(MATRIX_B)
 	@echo "\n--- Running Strassen ---"
-	$(MPIRUN) -f hosts.txt -n $(PROCESS) ./strassen_MPI
+	$(MPIRUN) -f hosts.txt -n $(PROCESS) ./strassen_MPI $(MATRIX_A) $(MATRIX_B)
 
 runopenmpicluster: openmpi
 	@echo "--- Running Naive ---"
-	OMP_NUM_THREADS=$(THREADS) $(MPIRUN) -f hosts.txt -np $(PROCESS) ./naive_OpenMPI
+	OMP_NUM_THREADS=$(THREADS) $(MPIRUN) -f hosts.txt -np $(PROCESS) ./naive_OpenMPI $(MATRIX_A) $(MATRIX_B)
 	@echo "\n--- Running Strassen ---"
-	OMP_NUM_THREADS=$(THREADS) $(MPIRUN) -f hosts.txt -np $(PROCESS) ./strassen_OpenMPI
+	OMP_NUM_THREADS=$(THREADS) $(MPIRUN) -f hosts.txt -np $(PROCESS) ./strassen_OpenMPI $(MATRIX_A) $(MATRIX_B)
 
 
 gen:
