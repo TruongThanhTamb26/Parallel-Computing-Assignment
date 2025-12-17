@@ -78,13 +78,13 @@ runmpicluster: mpi
 	@echo "--- Running Naive ---"
 	$(MPIRUN) -f hosts.txt -n $(PROCESS) ./naive_MPI
 	@echo "\n--- Running Strassen ---"
-	$(MPIRUN) -f hosts.txt -n $(PROCESS) ./naive_MPI
+	$(MPIRUN) -f hosts.txt -n $(PROCESS) ./strassen_MPI
 
 runopenmpicluster: openmpi
 	@echo "--- Running Naive ---"
-	OMP_NUM_THREADS=$(THREADS) $(MPIRUN) -f hosts.txt -np $(PROCESS) ./naive_MPI
+	OMP_NUM_THREADS=$(THREADS) $(MPIRUN) -f hosts.txt -np $(PROCESS) ./naive_OpenMPI
 	@echo "\n--- Running Strassen ---"
-	OMP_NUM_THREADS=$(THREADS) $(MPIRUN) -f hosts.txt -np $(PROCESS) ./naive_MPI
+	OMP_NUM_THREADS=$(THREADS) $(MPIRUN) -f hosts.txt -np $(PROCESS) ./strassen_OpenMPI
 
 
 gen:

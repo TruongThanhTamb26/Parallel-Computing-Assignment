@@ -218,12 +218,20 @@ double calculateChecksum(const std::vector<double>& matrix) {
     return sum;
 }
 
-int main() {
+int main(int argc, char** argv) {
+    if (argc < 3) {
+        std::cerr << "Usage: " << argv[0] << " <matrix1_file> <matrix2_file>" << std::endl;
+        return 1;
+    }
+
+    std::string matrixFileA = argv[1];
+    std::string matrixFileB = argv[2];
+
     int r1, c1, r2, c2;
 
     // Read file
-    std::vector<double> A = readMatrix("matrix1", r1, c1);
-    std::vector<double> B = readMatrix("matrix2", r2, c2);
+    std::vector<double> A = readMatrix(matrixFileA, r1, c1);
+    std::vector<double> B = readMatrix(matrixFileB, r2, c2);
 
     // Check Error
     if (c1 != r2) {

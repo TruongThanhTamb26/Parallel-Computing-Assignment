@@ -343,18 +343,29 @@ int main(int argc, char** argv) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &worldSize);
 
+    if (argc < 3) {
+        if (rank == 0) {
+            std::cerr << "Usage: " << argv[0] << " <matrix1_file> <matrix2_file>" << std::endl;
+        }
+        MPI_Finalize();
+        return 1;
+    }
+
     if (rank != 0) {
         workerLoop();
         MPI_Finalize();
         return 0;
     }
 
+    std::string matrixFileA = argv[1];
+    std::string matrixFileB = argv[2];
+
     std::cout << "MPI Strassen. Processes: " << worldSize;
     std::cout << std::endl;
 
     int r1, c1, r2, c2;
-    std::vector<double> A = readMatrix("matrix1", r1, c1);
-    std::vector<double> B = readMatrix("matrix2", r2, c2);
+    std::vector<double> A = readMatrix(matrixFileA, r1, c1);
+    std::vector<double> B = readMatrix(matrixFileB, r2, c2);
 
     if (c1 != r2) {
         std::cerr << "Size Error" << std::endl;

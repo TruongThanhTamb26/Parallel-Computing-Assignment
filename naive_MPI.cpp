@@ -62,13 +62,24 @@ int main(int argc, char** argv) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
+    if (argc < 3) {
+        if (rank == 0) {
+            std::cerr << "Usage: " << argv[0] << " <matrix1_file> <matrix2_file>" << std::endl;
+        }
+        MPI_Finalize();
+        return 1;
+    }
+
+    std::string matrixFileA = argv[1];
+    std::string matrixFileB = argv[2];
+
     int r1, c1, r2, c2;
     std::vector<double> A, B, C;
 
     // 2. Master (Rank 0) doc du lieu
     if (rank == 0) {
-        A = readMatrix("matrix1", r1, c1);
-        B = readMatrix("matrix2", r2, c2);
+        A = readMatrix(matrixFileA, r1, c1);
+        B = readMatrix(matrixFileB, r2, c2);
 
         if (c1 != r2) {
             std::cerr << "Size Error: Cols A != Rows B" << std::endl;
