@@ -1,6 +1,6 @@
 import random
 
-SIZES = [100, 1000, 10000]
+SIZES = [200, 1000, 4000]
 
 
 def generate_matrix_file(filename, rows, cols):
