@@ -1,29 +1,22 @@
-import sys
 import random
+
+SIZES = [100, 1000, 10000]
+
 
 def generate_matrix_file(filename, rows, cols):
     print(f"Generating {filename} with size {rows}x{cols}...")
-    with open(filename, 'w') as f:
-        # Ghi kích thước dòng đầu tiên
+    with open(filename, "w") as f:
         f.write(f"{rows} {cols}\n")
-        
-        # Ghi dữ liệu
         for _ in range(rows):
             line = [str(random.uniform(0, 100)) for _ in range(cols)]
             f.write(" ".join(line) + "\n")
 
+
 if __name__ == "__main__":
-    if len(sys.argv) != 5:
-        print("Usage: python gen_matrix.py <r1> <c1> <r2> <c2>")
-        sys.exit(1)
+    for size in SIZES:
+        filename1 = f"matrix1_{size}"
+        filename2 = f"matrix2_{size}"
+        generate_matrix_file(filename1, size, size)
+        generate_matrix_file(filename2, size, size)
 
-    r1, c1 = int(sys.argv[1]), int(sys.argv[2])
-    r2, c2 = int(sys.argv[3]), int(sys.argv[4])
-
-    if c1 != r2:
-        print("Error: c1 must equal r2 for matrix multiplication.")
-        sys.exit(1)
-
-    generate_matrix_file("matrix1", r1, c1)
-    generate_matrix_file("matrix2", r2, c2)
-    print("Done.")
+    print("Generated matrices for sizes:", ", ".join(map(str, SIZES)))

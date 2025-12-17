@@ -73,6 +73,20 @@ runopenmpi: openmpi
 
 runall: runnormal runopenmp runmpi runopenmpi
 
+#run with cluster
+runmpicluster: mpi
+	@echo "--- Running Naive ---"
+	$(MPIRUN) -f hosts.txt -n $(PROCESS) ./naive_MPI
+	@echo "\n--- Running Strassen ---"
+	$(MPIRUN) -f hosts.txt -n $(PROCESS) ./naive_MPI
+
+runopenmpicluster: openmpi
+	@echo "--- Running Naive ---"
+	OMP_NUM_THREADS=$(THREADS) $(MPIRUN) -f hosts.txt -np $(PROCESS) ./naive_MPI
+	@echo "\n--- Running Strassen ---"
+	OMP_NUM_THREADS=$(THREADS) $(MPIRUN) -f hosts.txt -np $(PROCESS) ./naive_MPI
+
+
 gen:
 	python3 gen_matrix.py $(R1) $(C1) $(R2) $(C2)
 
